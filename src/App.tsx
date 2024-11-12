@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import logo from './logo.svg';
+import { useState } from 'react';
 import './App.css';
 
 enum GameState {
@@ -8,9 +7,9 @@ enum GameState {
 }
 
 enum CardState {
-  HIDDEN,
-  REVALED,
-  REMOVCED,
+  HIDDEN = 'HIDDEN',
+  REVEALED = 'REVEALED',
+  REMOVED = 'REMOVED',
 }
 
 interface CardObject {
@@ -29,31 +28,55 @@ function App() {
     const current_row: CardObject[] = [];
     for (let col = 0; col < NUM_COL; col++) {
       current_row.push({
-        num: (Math.floor(col / 2) + 1) + (NUM_COL / 2 * row),
-        cardState: CardState.HIDDEN
-      })
+        num: Math.floor((col + NUM_COL * row) / 2) + 1,
+        cardState: CardState.HIDDEN,
+      });
     }
     cards2dArray.push(current_row);
   }
 
   const [cardsState, setCardsState] = useState<CardObject[][]>(cards2dArray);
 
+  const handleCardClick = (row: number, col: number) => {
+    if (cardsState[row][col].cardState === CardState.HIDDEN) {
+      const newCardsState = cardsState.slice();
+      newCardsState[row][col].cardState = CardState.REVEALED;
+      setCardsState(newCardsState);
+    }
+  };
+
   const renderGame = () => {
     switch (gameState) {
       case GameState.PLAYING:
-        return (<ul className='card-board'>{
-          cardsState.map((row, row_index) => (
-            <ul className='card_board_row' key={row_index}>{
-              row.map((card, col_index) => (
-                <button key={col_index}>{card.num}</button>
-              ))
-            }</ul>
-          ))
-          }</ul>);
+        return (
+          <div className="card-board">
+            {cardsState.map((row, rowIndex) => (
+              <div className="card-board-row" key={rowIndex}>
+                {row.map((card, colIndex) => (
+                  <button
+                    key={colIndex}
+                    className={`card ${card.cardState
+                      .toString()
+                      .toLowerCase()}`}
+                    onClick={() => handleCardClick(rowIndex, colIndex)}
+                    disabled={card.cardState === CardState.REMOVED}
+                  >
+                    {card.cardState === CardState.REVEALED ? (
+                      <span>{card.num}</span>
+                    ) : (
+                      ''
+                    )}
+                  </button>
+                ))}
+              </div>
+            ))}
+          </div>
+        );
       case GameState.FINISHED:
         return <h1>Finished</h1>;
     }
   };
+
   return (
     <div className="App">
       <header className="App-header">{renderGame()}</header>
