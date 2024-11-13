@@ -26,27 +26,43 @@ const COMPARE_TIMEOUT_IN_MS = 1000;
 function App() {
   const [gameState, setGameState] = useState<GameState>(GameState.PLAYING);
   const [cardToCompare, setCardToCompare] = useState<CardObject | null>(null);
-  const timeoutRef: React.MutableRefObject<NodeJS.Timeout | null> = useRef(null);
+  const timeoutRef: React.MutableRefObject<NodeJS.Timeout | null> =
+    useRef(null);
   const hiddenPairRef = useRef<number>((NUM_ROW * NUM_COL) / 2);
 
   const initializeCards = (): CardObject[][] => {
-    const newCards2dArray: CardObject[][] = [];
+    const numbers = Array.from(
+      { length: (NUM_ROW * NUM_COL) / 2 },
+      (_, i) => i + 1
+    ).flatMap((num) => [num, num]); // Create pairs of numbers from 1 to 18
+    // Shuffle the numbers array
+    for (let i = numbers.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
+    }
+
+    // Generate the 2D array of CardObjects with shuffled numbers
+    const shuffledCards2dArray: CardObject[][] = [];
+    let index = 0;
     for (let row = 0; row < NUM_ROW; row++) {
       const current_row: CardObject[] = [];
       for (let col = 0; col < NUM_COL; col++) {
         current_row.push({
-          num: Math.floor((col + NUM_COL * row) / 2) + 1,
+          num: numbers[index++], // Assign shuffled number
           cardState: CardState.HIDDEN,
           row,
           col,
         });
       }
-      newCards2dArray.push(current_row);
+      shuffledCards2dArray.push(current_row);
     }
-    return newCards2dArray;
+
+    return shuffledCards2dArray;
   };
 
-  const [cardsState, setCardsState] = useState<CardObject[][]>(initializeCards());
+  const [cardsState, setCardsState] = useState<CardObject[][]>(
+    initializeCards()
+  );
 
   const updateCardToState = (row: number, col: number, state: CardState) => {
     const newCardsState = cardsState.slice();
@@ -70,7 +86,11 @@ function App() {
           // Match
           timeoutRef.current = setTimeout(() => {
             updateCardToState(row, col, CardState.REMOVED);
-            updateCardToState(cardToCompare.row, cardToCompare.col, CardState.REMOVED);
+            updateCardToState(
+              cardToCompare.row,
+              cardToCompare.col,
+              CardState.REMOVED
+            );
             timeoutRef.current = null;
             setCardToCompare(null);
             hiddenPairRef.current -= 1;
@@ -82,7 +102,11 @@ function App() {
           // Don't match
           timeoutRef.current = setTimeout(() => {
             updateCardToState(row, col, CardState.HIDDEN);
-            updateCardToState(cardToCompare.row, cardToCompare.col, CardState.HIDDEN);
+            updateCardToState(
+              cardToCompare.row,
+              cardToCompare.col,
+              CardState.HIDDEN
+            );
             timeoutRef.current = null;
             setCardToCompare(null);
           }, COMPARE_TIMEOUT_IN_MS);
