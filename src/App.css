@@ -46,3 +46,31 @@
   opacity: 0.5;
   border: 2px dashed #666;
 }
+
+.finished-title {
+  font-size: 2.5rem;
+  color: #081611;
+  margin-bottom: 20px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.play-again-button {
+  padding: 10px 20px;
+  font-size: 1.2rem;
+  color: #ffffff;
+  background-color: #4caf50;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.play-again-button:hover {
+  background-color: #45a049;
+  transform: scale(1.05);
+}
+
+.play-again-button:active {
+  background-color: #388e3c;
+  transform: scale(0.98);
+}
